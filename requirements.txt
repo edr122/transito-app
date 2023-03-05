@@ -1,0 +1,4 @@
+flask==2.2.3
+flask-mysqldb==1.0.1
+pyjwt==2.5.0
+werkzeug ==2.2.3

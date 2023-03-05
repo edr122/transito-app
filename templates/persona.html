@@ -1,0 +1,218 @@
+{% extends "layout.html" %}
+{% block body %}
+</br>
+<h3>Persona:</h3>
+</br>
+<div class="card shadow">
+
+    <form>
+        <div class="row" style="padding: 15px;">
+            <div class="col">
+                <input class="form-control" type="text" name="nombre" id="nombre" placeholder="Nombre completo">
+            </div>
+            <div class="col">
+                <input class="form-control" type="email" name="correo" id="correo" placeholder="Correo">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-success" id="save_persona">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</br>
+<div class="card shadow" id="id_tabla_persona">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nombre completo</td>
+                <td>Correo</td>
+                <td>Opciones</td>
+            </tr>
+        </thead>
+        <tbody id="id_tabla_persona_body">
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ModalEditPersona" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="">Editar persona</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="row" style="padding: 15px;">
+                    <input type="hidden" name="idpersona" id="id_edit">
+                    <input class="form-control" type="text" name="nombre" id="nombre_edit" placeholder="Nombre completo" style="margin-bottom: 20px;">
+                    <input class="form-control" type="email" name="correo" id="correo_edit" placeholder="Correo">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="edit_persona">Actualizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+
+$(function(){
+
+
+    initial();
+
+    function initial(){
+        actualizarTable();
+    }
+
+    function actualizarTable(){
+        $.ajax({
+			url: '/personas',
+			type: 'GET',
+			success: function(response){
+                $("#id_tabla_persona_body").empty();
+                response.forEach(persona => {
+                    $("#id_tabla_persona_body").append(`
+                            <tr>
+                                <td>`+persona.id+`</td>
+                                <td>`+persona.nombre+`</td>
+                                <td>`+persona.correo+`</td>
+                                <td>
+                                    <button type="button" data="`+persona.id+`" class="btn btn-warning" data-action="editar"  data-bs-toggle="modal" data-bs-target="#ModalEditPersona">
+                                        Editar
+                                    </button>
+                                    <button type="button" data="`+persona.id+`" class="btn btn-danger" data-action="eliminar" >
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                    `);
+                });
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+    }
+
+	$('#save_persona').click(function(e) {
+        e.preventDefault();
+
+		let nombre = $('#nombre').val();
+		let correo = $('#correo').val();
+
+        if(nombre.trim()=="" || correo.trim() ==""){
+            alert("Debe llenar correctamente los campos");
+            return;
+        }
+
+		$.ajax({
+			url: '/persona',
+			data: {'nombre':nombre, 'correo':correo},
+			type: 'POST',
+			success: function(response){
+				console.log(response);
+                $('#nombre').val(""); 
+                $('#correo').val("");
+                actualizarTable();
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
+
+    $('#edit_persona').click(function(e) {
+        e.preventDefault();
+
+        let id = $('#id_edit').val();
+		let nombre = $('#nombre_edit').val();
+		let correo = $('#correo_edit').val();
+        if(nombre.trim()=="" || correo.trim() ==""){
+            alert("Debe llenar correctamente los campos");
+            return;
+        }
+
+		$.ajax({
+			url: '/persona',
+			data: {'id':id, 'nombre':nombre, 'correo':correo},
+			type: 'PUT',
+			success: function(response){
+				console.log(response);
+                $('#id_edit').val("");
+                $('#nombre_edit').val(""); 
+                $('#correo_edit').val("");
+                actualizarTable();
+                $('#ModalEditPersona').modal('toggle'); 
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
+
+    $('#id_tabla_persona tbody').on('click', 'button[data-action=eliminar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        if(confirm('Estas seguro que quieres eliminar')){
+            $.ajax({
+                url: '/persona/'+id,
+                type: 'DELETE',
+                success: function(response){
+                    console.log(response);
+                    actualizarTable();
+                },
+                error: function(error){
+                    console.log(error);
+                },
+                statusCode: {
+                    400: function() {
+                        alert("Error: No se puede eliminar porque la persona tiene vehiculos");
+                    },
+                }
+		    });
+        }
+
+
+
+    });
+
+    $('#id_tabla_persona tbody').on('click', 'button[data-action=editar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        $.ajax({
+            url: '/persona/'+id,
+            type: 'GET',
+            success: function(response){
+                $('#id_edit').val(response.id);
+                $('#nombre_edit').val(response.nombre); 
+                $('#correo_edit').val(response.correo);
+            },
+            error: function(error){
+                console.log(error);
+            }
+		});
+
+
+    });
+
+
+    
+
+});
+
+
+</script>
+
+{% endblock %}

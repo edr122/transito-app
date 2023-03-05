@@ -1,0 +1,215 @@
+{% extends "layout.html" %}
+{% block body %}
+</br>
+<h3>Oficial:</h3>
+</br>
+<div class="card shadow">
+
+    <form>
+        <div class="row" style="padding: 15px;">
+            <div class="col">
+                <input class="form-control" type="text" name="nombre" id="nombre" placeholder="Nombre completo">
+            </div>
+            <div class="col">
+                <input class="form-control" type="text" name="usuario_app" id="usuario_app" placeholder="Usuario App">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-success" id="save_oficial">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</br>
+<div class="card shadow" id="id_tabla_oficial">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nombre completo</td>
+                <td>Usuario App</td>
+                <td>Opciones</td>
+            </tr>
+        </thead>
+        <tbody id="id_tabla_oficial_body">
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ModalEditOficial" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="">Editar oficial</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="row" style="padding: 15px;">
+                    <input type="hidden" name="idoficial" id="id_edit">
+                    <input class="form-control" type="text" name="nombre" id="nombre_edit" placeholder="Nombre completo" style="margin-bottom: 20px;">
+                    <input class="form-control" type="text" name="usuario_app" id="usuario_app_edit" placeholder="Usuario App">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="edit_oficial">Actualizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+
+$(function(){
+
+
+    initial();
+
+    function initial(){
+        actualizarTable();
+    }
+
+    function actualizarTable(){
+        $.ajax({
+			url: '/oficiales',
+			type: 'GET',
+			success: function(response){
+                $("#id_tabla_oficial_body").empty();
+                response.forEach(oficial => {
+                    $("#id_tabla_oficial_body").append(`
+                            <tr>
+                                <td>`+oficial.id+`</td>
+                                <td>`+oficial.nombre+`</td>
+                                <td>`+oficial.usuario_app+`</td>
+                                <td>
+                                    <button type="button" data="`+oficial.id+`" class="btn btn-warning" data-action="editar"  data-bs-toggle="modal" data-bs-target="#ModalEditOficial">
+                                        Editar
+                                    </button>
+                                    <button type="button" data="`+oficial.id+`" class="btn btn-danger" data-action="eliminar" >
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                    `);
+                });
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+    }
+
+	$('#save_oficial').click(function(e) {
+        e.preventDefault();
+
+		let nombre = $('#nombre').val();
+		let usuario_app = $('#usuario_app').val();
+
+        if(nombre.trim()=="" || usuario_app.trim() ==""){
+            alert("Debe llenar correctamente los campos");
+            return;
+        }
+
+		$.ajax({
+			url: '/oficial',
+			data: {'nombre':nombre, 'usuario_app':usuario_app},
+			type: 'POST',
+			success: function(response){
+				console.log(response);
+                $('#nombre').val("");
+                $('#usuario_app').val("");
+                actualizarTable();
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
+
+    $('#edit_oficial').click(function(e) {
+        e.preventDefault();
+
+        let id = $('#id_edit').val();
+		let nombre = $('#nombre_edit').val();
+		let usuario_app = $('#usuario_app_edit').val();
+        if(nombre.trim()=="" || usuario_app.trim() ==""){
+            alert("Debe llenar correctamente los campos");
+            return;
+        }
+
+		$.ajax({
+			url: '/oficial',
+			data: {'id':id, 'nombre':nombre, 'usuario_app':usuario_app},
+			type: 'PUT',
+			success: function(response){
+				console.log(response);
+                $('#id_edit').val("");
+                $('#nombre_edit').val(""); 
+                $('#usuario_app_edit').val("");
+                actualizarTable();
+                $('#ModalEditOficial').modal('toggle'); 
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	});
+
+    $('#id_tabla_oficial tbody').on('click', 'button[data-action=eliminar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        if(confirm('Estas seguro que quieres eliminar')){
+            $.ajax({
+                url: '/oficial/'+id,
+                type: 'DELETE',
+                success: function(response){
+                    console.log(response);
+                    actualizarTable();
+                },
+                error: function(error){
+                    console.log(error);
+                },
+                statusCode: {
+                    400: function() {
+                        alert("Error: No se puede eliminar porque tiene sanciones realizadas");
+                    },
+                }
+		    });
+        }
+    });
+
+    $('#id_tabla_oficial tbody').on('click', 'button[data-action=editar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        $.ajax({
+            url: '/oficial/'+id,
+            type: 'GET',
+            success: function(response){
+                $('#id_edit').val(response.id);
+                $('#nombre_edit').val(response.nombre); 
+                $('#usuario_app_edit').val(response.usuario_app);
+            },
+            error: function(error){
+                console.log(error);
+            }
+		});
+
+
+    });
+
+
+    
+
+});
+
+
+</script>
+
+{% endblock %}

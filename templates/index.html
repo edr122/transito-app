@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block body %}
+</br>
+<h3>Lista de infracciones:</h3>
+</br>
+<div class="card shadow" id="id_tabla_infraccion">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Comentarios</td>
+                <td>Fecha creacion</td>
+                <td>Oficial</td>
+                <td>Placa de Vehículo</td>
+            </tr>
+        </thead>
+        <tbody id="id_tabla_infraccion_body">
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    $(function(){
+    
+    
+        initial();
+    
+        function initial(){
+            actualizarTable();
+        }
+    
+        function actualizarTable(){
+            $.ajax({
+                url: '/infracciones',
+                type: 'GET',
+                success: function(response){
+                    $("#id_tabla_infraccion_body").empty();
+                    response.forEach(infraccion => {
+                        $("#id_tabla_infraccion_body").append(`
+                                <tr>
+                                    <td>`+infraccion.id+`</td>
+                                    <td>`+infraccion.comentarios+`</td>
+                                    <td>`+infraccion.fecha_creacion+`</td>
+                                    <td>`+infraccion.oficial+`</td>
+                                    <td>`+infraccion.placa_vehiculo+`</td>
+                                </tr>
+                        `);
+                    });
+                },
+                error: function(error){
+                    console.log(error);
+                }
+            });
+        }
+    });
+    
+    
+    </script>
+    
+
+
+{% endblock %}

@@ -1,0 +1,293 @@
+{% extends "layout.html" %}
+{% block body %}
+</br>
+<h3>Vehículo:</h3>
+</br>
+<div class="card shadow">
+    <form>
+        <div class="row" style="padding: 15px;">
+            <div class="col">
+                <input class="form-control" type="text" name="placa_patente" id="placa_patente" placeholder="Placa">
+            </div>
+            <div class="col">
+                <input class="form-control" type="text" name="marca" id="marca" placeholder="Marca">
+            </div>
+        </div>
+
+        <div class="row" style="padding: 15px;">
+            <div class="col">
+                <input class="form-control" type="text" name="color" id="color" placeholder="Color">
+            </div>
+            <div class="col">
+                <select class="form-select" aria-label="select example" id="id_persona">
+                </select>
+            </div>
+        </div>
+        <div style="padding: 15px;">
+            <button type="submit" class="btn btn-success" id="save_vehiculo">
+                Guardar
+            </button>
+        </div>
+    </form>
+</div>
+</br>
+<div class="card shadow" id="id_tabla_vehiculo">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Placa</td>
+                <td>Marca</td>
+                <td>Color</td>
+                <td>Persona</td>
+                <td>Opciones</td>
+            </tr>
+        </thead>
+        <tbody id="id_tabla_vehiculo_body">
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ModalEditVehiculo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="">Editar Vehículo</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="row" style="padding: 15px;">
+                    <div class="col">
+                        <input type="hidden" id="id_edit" >
+                        <input class="form-control" type="text" name="placa_patente" id="placa_patente_edit" placeholder="Placa">
+                    </div>
+                    <div class="col">
+                        <input class="form-control" type="text" name="marca" id="marca_edit" placeholder="Marca">
+                    </div>
+                </div>
+        
+                <div class="row" style="padding: 15px;">
+                    <div class="col">
+                        <input class="form-control" type="text" name="color" id="color_edit" placeholder="Color">
+                    </div>
+                    <div class="col">
+                        <select class="form-select" aria-label="select example" id="id_persona_edit">
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="edit_vehiculo">Actualizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+
+$(function(){
+
+
+    initial();
+
+    function initial(){
+        actualizarTable();
+        $.ajax({
+			url: '/personas',
+			type: 'GET',
+			success: function(response){
+                $("#id_persona").empty();
+                $("#id_persona").append(`
+                        <option value="0" selected>Seleccionar Dueño</option>
+                    `);
+                $("#id_persona_edit").empty();
+                $("#id_persona_edit").append(`
+                        <option value="0" selected>Seleccionar Dueño</option>
+                    `);
+                response.forEach(persona => {
+                    $("#id_persona").append(`
+                        <option value="`+persona.id+`">`+persona.nombre+`</option>
+                    `);
+                    $("#id_persona_edit").append(`
+                        <option value="`+persona.id+`">`+persona.nombre+`</option>
+                    `);
+                });
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+
+    }
+
+    function actualizarTable(){
+        $.ajax({
+			url: '/vehiculos',
+			type: 'GET',
+			success: function(response){
+                $("#id_tabla_vehiculo_body").empty();
+                response.forEach(vehiculo => {
+                    $("#id_tabla_vehiculo_body").append(`
+                            <tr>
+                                <td>`+vehiculo.id+`</td>
+                                <td>`+vehiculo.placa_patente+`</td>
+                                <td>`+vehiculo.marca+`</td>
+                                <td>`+vehiculo.color+`</td>
+                                <td>`+vehiculo.persona+`</td>
+                                <td>
+                                    <button type="button" data="`+vehiculo.id+`" class="btn btn-warning" data-action="editar"  data-bs-toggle="modal" data-bs-target="#ModalEditVehiculo">
+                                        Editar
+                                    </button>
+                                    <button type="button" data="`+vehiculo.id+`" class="btn btn-danger" data-action="eliminar" >
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                    `);
+                });
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+    }
+
+	$('#save_vehiculo').click(function(e) {
+        e.preventDefault();
+
+		let placa_patente = $('#placa_patente').val();
+        let marca = $('#marca').val();
+        let color = $('#color').val();
+		let id_persona = $('#id_persona').val();
+
+        if(placa_patente.trim() == "" || marca.trim() == "" || color.trim() == "" || id_persona == "0"){
+            alert("Error: Datos mal ingresados");
+            return;
+        }
+
+		$.ajax({
+			url: '/vehiculo',
+			data: {'placa_patente':placa_patente, 'marca':marca, 'color':color, 'id_persona': parseInt(id_persona)},
+			type: 'POST',
+			success: function(response){
+				console.log(response);
+                $('#placa_patente').val("");
+                $('#marca').val("");
+                $('#color').val("");
+                $('#id_persona').val("0");
+                actualizarTable();
+			},
+			error: function(jqXHR, textStatus, errorThrown){
+                console.log(textStatus);
+			},
+            statusCode: {
+                400: function() {
+                    alert("Error: Revisar que la placa no se repita");
+                },
+            }
+            
+		});
+	});
+
+    $('#edit_vehiculo').click(function(e) {
+        e.preventDefault();
+
+        let id = $('#id_edit').val();
+		let placa_patente = $('#placa_patente_edit').val();
+		let marca = $('#marca_edit').val();
+        let color = $('#color_edit').val();
+        let id_persona = $('#id_persona_edit').val();
+
+        if(placa_patente.trim() == "" || marca.trim() == "" || color.trim() == "" || id_persona == "0"){
+            alert("Error: Datos mal ingresados");
+            return;
+        }
+
+		$.ajax({
+			url: '/vehiculo',
+			data: {'id':id, 'placa_patente':placa_patente, 'marca':marca, 'color':color, 'id_persona':id_persona},
+			type: 'PUT',
+			success: function(response){
+				console.log(response);
+                $('#id_edit').val("");
+                $('#placa_patente').val("");
+                $('#marca').val("");
+                $('#color').val("");
+                $('#id_persona').val("0");
+                actualizarTable();
+                $('#ModalEditVehiculo').modal('toggle'); 
+			},
+			error: function(error){
+				console.log(error);
+			},
+            statusCode: {
+                400: function() {
+                    alert("Error: Revisar que la placa no se repita");
+                },
+            }
+		});
+	});
+
+    $('#id_tabla_vehiculo tbody').on('click', 'button[data-action=eliminar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        if(confirm('Estas seguro que quieres eliminar')){
+            $.ajax({
+                url: '/vehiculo/'+id,
+                type: 'DELETE',
+                success: function(response){
+                    console.log(response);
+                    actualizarTable();
+                },
+                error: function(error){
+                    console.log(error);
+                },
+                statusCode: {
+                    400: function() {
+                        alert("Error: No se puede eliminar porque el vehiculo tiene infracciones");
+                    },
+                }
+		    });
+        }
+
+
+
+    });
+
+    $('#id_tabla_vehiculo tbody').on('click', 'button[data-action=editar]', function (evt) {
+        evt.preventDefault();
+
+        let id = $(this).attr("data");
+        $.ajax({
+            url: '/vehiculo/'+id,
+            type: 'GET',
+            success: function(response){
+               $('#id_edit').val(response.id);
+               $('#placa_patente_edit').val(response.placa_patente);
+               $('#marca_edit').val(response.marca);
+               $('#color_edit').val(response.color);
+               $('#id_persona_edit').val(response.id_persona);
+            },
+            error: function(error){
+                console.log(error);
+            }
+		});
+
+
+    });
+
+
+    
+
+});
+
+
+</script>
+
+{% endblock %}
