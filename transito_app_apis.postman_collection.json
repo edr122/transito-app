@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "084418de-5be4-4433-b9cc-9286165fa94f",
+		"name": "transito_app_apis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Generar Token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario_app\":\"dgarcia\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Generar Informe",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/generar_informe/jramirez@hotmail.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"generar_informe",
+						"jramirez@hotmail.com"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Carga Infracción",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvX2FwcCI6ImRnYXJjaWEiLCJleHAiOjE2NzgyMjc0MjZ9.p75drYQb3IVsr_rndSdBQlhPEx0fXFkds54G3LOf8f4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"placa_patente\": \"A1A-123\",\r\n    \"timestamp\": \"2022-12-29 00:00:00.00\",\r\n    \"comentarios\": \"texto libre\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/cargar_infraccion",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"cargar_infraccion"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

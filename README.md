@@ -53,3 +53,8 @@ Para desplegar conjuntamente con la base datos tenemos que ejecutar el archivo [
 docker-compose up -d
 ```
 luego ingresamos a la siguiente dirección: *http://localhost:5000/* y listo.
+
+
+## ARQUITECTURA PROPUESTA AWS
+
+![](docs/AWS_Arquitectura_transito_app.jpg)
