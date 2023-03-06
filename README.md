@@ -31,6 +31,7 @@ Nota: El proyecto se va ejecutar en el puerto 3000  *Ejemplo:http://localhost:30
 
 ### Cargar la base de datos
 Diagrama de base de datos
+
 ![](docs/Diagrama_DB.JPG)
 
 Ejecutar el siguiente script [db_estructura.sql](db_estructura.sql) para cargar la información
@@ -46,7 +47,7 @@ app.config['MYSQL_DB'] = 'xxxx'
 
 ## EJECUTAR DESDE DOCKER
 
-La imagen de la aplicación en dockerhub está como *edr122/transito_app*.
+La imagen de la aplicación en dockerhub está como [edr122/transito_app](https://hub.docker.com/r/edr122/transito_app).
 Para desplegar conjuntamente con la base datos tenemos que ejecutar el archivo [docker-compose.yml](docker-compose.yml).
 ```bash
 docker-compose up -d
