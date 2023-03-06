@@ -69,3 +69,10 @@ CREATE TABLE `infraccion` (
   CONSTRAINT `fk_infracion_id_vehiculo` FOREIGN KEY (`id_vehiculo`) REFERENCES `vehiculo` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+INSERT INTO `oficial` VALUES (1,'Daniel García','dgarcia'),(2,'Oscar Malqui','omalqui');
+
+INSERT INTO `persona` VALUES (1,'Jorge Ramirez','jramirez@hotmail.com'),(2,'Matías Ines','mines@hotmail.com'),(3,'Elmer Gonzales','egonzales@email.com');
+
+INSERT INTO `vehiculo` VALUES (1,'A1A-123','KIA','GRIS',1),(2,'E1P-143','TOYOTA','NEGRO',2),(3,'E1J-654','NISSAN','BLANCO',1);

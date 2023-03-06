@@ -1,0 +1,18 @@
+version: "3"
+services:
+    db:
+        container_name: mydb
+        image: mysql:5.7
+        ports:
+            - "32001:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: eder
+        volumes:
+            - "./db_estructura.sql:/docker-entrypoint-initdb.d/1.sql"
+    app:
+        container_name: transito-app
+        links:
+            - "db"
+        image: edr122/transito_app:1.0
+        ports:
+            - "5000:5000"

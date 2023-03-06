@@ -5,7 +5,7 @@
 ### Requisitos generales
 
 - python 3.8
-- mysql 8 o superior
+- mysql 5.7 o superior
 - Instalar *Pipenv* => ```pip install pipenv```
 
 ### Instalación del sistema
@@ -21,7 +21,7 @@ pipenv shell
 ```
 Instalamos todos requerimientos (dependencias)
 ```bash
-pip install -r requirements.txt
+pipenv install -r requirements.txt
 ```
 Ejecutar el proyecto
 ```bash
@@ -43,3 +43,12 @@ app.config['MYSQL_USER'] = 'xxxx'
 app.config['MYSQL_PASSWORD'] = 'xxxx'
 app.config['MYSQL_DB'] = 'xxxx'
 ```
+
+## EJECUTAR DESDE DOCKER
+
+La imagen de la aplicación en dockerhub está como *edr122/transito_app*.
+Para desplegar conjuntamente con la base datos tenemos que ejecutar el archivo [docker-compose.yml](docker-compose.yml).
+```bash
+docker-compose up -d
+```
+luego ingresamos a la siguiente dirección: *http://localhost:5000/* y listo.
