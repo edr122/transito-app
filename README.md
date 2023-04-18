@@ -15,7 +15,7 @@ Clonamos el proyecto:
 git clone https://github.com/edr122/transito-app.git
 cd transito-app
 ```
-Creamos el entorno virtual
+Creamos el entorno virtual ( En caso sea requerido borrar el ambiente virtual *pipenv --rm*)
 ```bash
 pipenv shell
 ```
